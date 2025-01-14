@@ -109,16 +109,6 @@ int main()
 			// Wait for the input thread to finish
             userInputLoopThread.join();
 		}
-		clientSocket.Close();
-		{
-			// lock writing output to console
-			std::lock_guard<std::mutex> lock(ioMutex);
-			std::cout << "Client socket closed" << std::endl;
-		}
-		CloseWinsockDll();
-		// lock writing output to console
-		std::lock_guard<std::mutex> lock(ioMutex);
-		std::cout << "Winsock dll closed" << std::endl;
 	} 
 	catch (std::runtime_error e) 
 	{
@@ -126,6 +116,18 @@ int main()
 		// lock writing output to console
         std::lock_guard<std::mutex> lock(ioMutex);
 		std::cout << "An exception occured: " << e.what() << std::endl;
+	}
+	// clean up
+	try	
+	{
+		clientSocket.Close();
+		std::cout << "Client socket closed" << std::endl;
+		CloseWinsockDll();
+		std::cout << "Winsock dll closed" << std::endl;
+	}
+	catch (std::runtime_error e)
+	{
+		std::cout << "An exception occured on cleanup: " << e.what() << std::endl;
 	}
 	return 0;
 }

@@ -45,14 +45,22 @@ int main()
 			std::cout << "CLIENT: " << recvMsg << std::endl;
 		}
 		std::cout << "Recv loop closed" << std::endl;
-		CloseSocket(conn);
-		std::cout << "Server socket closed" << std::endl;
-		CloseWinsockDll();
-		std::cout << "Winsock dll closed" << std::endl;
 	} 
 	catch (std::runtime_error e) 
 	{
 		std::cout << "An exception occured: " << e.what() << std::endl;
+	}
+	// clean up 
+	try
+	{
+		CloseSocket(conn);
+		std::cout << "Server socket closed" << std::endl;
+		CloseWinsockDll();
+		std::cout << "Winsock dll closed" << std::endl;
+	}
+	catch (std::runtime_error e)
+	{
+		std::cout << "An exception occured on cleanup: " << e.what() << std::endl;
 	}
 	return 0;
 }
