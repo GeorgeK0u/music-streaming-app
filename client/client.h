@@ -1,15 +1,16 @@
 #pragma once
+#include <WinSock2.h>
 
 class ClientSocket
 {
 	public:
-		ClientSocket(std::string ipv4Addr, int port);
+		ClientSocket(const char* ipv4Addr, int port);
 		SOCKET CreateAndConnect();
 		void Close(); 
 
 	private:	
 		SOCKET conn;
-		std::string ipv4Addr;
+		const char* ipv4Addr;
 		int port;
 		void Create();
 		void Connect();
