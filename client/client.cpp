@@ -1,9 +1,8 @@
-#include <WinSock2.h>
-#include <string>
 #include "client.h"
+#include "..\helper.h"
 #include <stdexcept>
 
-ClientSocket::ClientSocket(std::string ipv4Addr, int port)
+ClientSocket::ClientSocket(const char* ipv4Addr, int port)
 {
 	this->conn = INVALID_SOCKET;
 	this->ipv4Addr = ipv4Addr;
@@ -12,6 +11,7 @@ ClientSocket::ClientSocket(std::string ipv4Addr, int port)
 
 void ClientSocket::Create()
 {
+	helper::InitWinsockDll();
 	// create socket
 	this->conn = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	// failed to create socket
@@ -26,7 +26,7 @@ void ClientSocket::Connect()
 	// create socket address instance for connect
 	sockaddr_in addr;
 	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = inet_addr(this->ipv4Addr.c_str());
+	addr.sin_addr.s_addr = inet_addr(this->ipv4Addr);
 	addr.sin_port = htons(this->port);
 	// connect
 	int res = connect(this->conn, (SOCKADDR*)&addr, sizeof(addr));
@@ -41,19 +41,20 @@ SOCKET ClientSocket::CreateAndConnect()
 {
 	this->Create();
 	this->Connect();
-	return conn;
+	return this->conn;
 }
 
 void ClientSocket::Close()
 {
-	if (this->conn == INVALID_SOCKET)
+	if (this->conn != INVALID_SOCKET)
 	{
-		return;
+		// close socket
+		int res = closesocket(this->conn);
+		if (res == SOCKET_ERROR)
+		{
+			throw std::runtime_error("Failed to close client socket"); 
+		}
+		this->conn = INVALID_SOCKET;
 	}
-	// close socket
-	int res = closesocket(this->conn);
-	if (res == SOCKET_ERROR)
-	{
-		throw std::runtime_error("Failed to close client socket"); 
-	}
+	helper::CloseWinsockDll();
 }
