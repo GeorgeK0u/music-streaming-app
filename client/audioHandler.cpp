@@ -5,6 +5,7 @@ DEFINE_GUID(IID_IDirectSoundNotify8, 0xb0210783, 0x89cd, 0x11d0, 0xaf, 0x8, 0x0,
 
 AudioHandler::AudioHandler()
 {
+	this->pausedPos = 0;
 	// initialize to check value on release
 	this->audioDevicePtr = nullptr;
 	this->secondaryBufferPtr = nullptr;
@@ -159,6 +160,26 @@ void AudioHandler::PlayAudio()
 bool AudioHandler::IsPlaying()
 {
 	return this->secondaryBufferPtr != nullptr;
+}
+
+void AudioHandler::Pause()
+{
+	this->secondaryBufferPtr->GetCurrentPosition(&this->pausedPos, NULL);
+}
+
+void AudioHandler::Unpause()
+{
+	this->secondaryBufferPtr->SetCurrentPosition(this->pausedPos);
+}
+
+bool AudioHandler::AfterUnpause()
+{
+	if (this->pausedPos == 0)
+	{
+		return false;
+	}
+	this->pausedPos = 0;
+	return true;
 }
 
 void AudioHandler::StopAudio()
