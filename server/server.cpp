@@ -3,17 +3,14 @@
 #include <iostream>
 #include <stdexcept>
 
-ServerSocket::ServerSocket(const char* ipv4Addr, int port, int maxConnNum)
+ListenSocket::ListenSocket()
 {
-	this->ipv4Addr = ipv4Addr;
-	this->port = port;
-	this->maxConnNum = maxConnNum;
 	this->listenSocket = INVALID_SOCKET;
-	this->conn = INVALID_SOCKET;
 }
 
-void ServerSocket::Create()
+void ListenSocket::Create()
 {
+	// init winsock dll
 	helper::InitWinsockDll();
 	// create listening socket
 	this->listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -24,7 +21,7 @@ void ServerSocket::Create()
 	}
 }
 
-void ServerSocket::Bind()
+void ListenSocket::Bind()
 {
 	// listening socket address struct
 	sockaddr_in addr;
@@ -40,7 +37,7 @@ void ServerSocket::Bind()
 	}
 }
 
-void ServerSocket::Listen()
+void ListenSocket::Listen()
 {
 	// set socket to listen
 	int res = listen(this->listenSocket, this->maxConnNum);
@@ -52,47 +49,40 @@ void ServerSocket::Listen()
 	std::cout << "Listening..." << std::endl;
 }
 
-void ServerSocket::Accept()
+SOCKET ListenSocket::Accept()
 {
 	// waiting to accept
-	this->conn = accept(this->listenSocket, NULL, NULL);
-	if (this->conn == INVALID_SOCKET)
+	SOCKET conn = accept(this->listenSocket, NULL, NULL);
+	// accept failed
+	if (conn == INVALID_SOCKET)
 	{
 		throw std::runtime_error("Accept failed");
 	}
-	// close listening socket
-	if (this->maxConnNum == 1)
-	{
-		int res = closesocket(this->listenSocket);
-		if (res == SOCKET_ERROR)
-		{
-			throw std::runtime_error("Failed to close listening socket");
-		}
-		this->listenSocket = INVALID_SOCKET;
-	}
+	return conn;
 }
 
-SOCKET ServerSocket::CreateAndAccept()
+void ListenSocket::CreateAndListen(const char* ipv4Addr, int port, int maxConnNum)
 {
+	this->ipv4Addr = ipv4Addr;
+	this->port = port;
+	this->maxConnNum = maxConnNum;
 	this->Create();	
 	this->Bind();
 	this->Listen();
-	this->Accept();
-	return this->conn;
 }
 
-void ServerSocket::Close()
+void ListenSocket::Close()
 {
-	// close conn 
-	if (this->conn != INVALID_SOCKET) 
+	// close listen socket
+	if (this->listenSocket == INVALID_SOCKET)
 	{
-		int res = closesocket(this->conn);
-		// failed to close conn
-		if (res == SOCKET_ERROR)
-		{
-			throw std::runtime_error("Failed to close listening socket");
-		}
-		this->conn = INVALID_SOCKET;
+		return;
 	}
-	helper::CloseWinsockDll();
+	int res = closesocket(this->listenSocket);
+	if (res == SOCKET_ERROR)
+	{
+		throw std::runtime_error("Failed to close listening socket");
+	}
+	std::cout << "Listening socket memory released" << std::endl;
+	this->listenSocket = INVALID_SOCKET;
 }
