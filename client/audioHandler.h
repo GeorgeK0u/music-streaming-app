@@ -9,10 +9,14 @@ class AudioHandler
 		void CreateSecondaryBuffer(int chunkSize);
 		void PlayChunk(const char* chunkDataArrPtr, int chunkSize);
 		bool IsPlaying();
+		void Pause();
+		void Unpause();
+		bool AfterUnpause(); 
 		void StopAudio();
 		void Release();
 
 	private:
+		DWORD pausedPos;
 		WAVEFORMATEX waveFormat;
 		LPDIRECTSOUNDNOTIFY8 lpNotify;
 		DSBPOSITIONNOTIFY positionNotify;
