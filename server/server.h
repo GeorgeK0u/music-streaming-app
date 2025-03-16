@@ -1,21 +1,20 @@
 #pragma once
 #include <WinSock2.h>
 
-class ServerSocket
+class ListenSocket
 {
 	public:
-		ServerSocket(const char* arr, int port, int maxConnNum);
-		SOCKET CreateAndAccept();
+		ListenSocket();
+		void CreateAndListen(const char* arr, int port, int maxConnNum);
+		SOCKET Accept();	
 		void Close();
 
 	private:
 		SOCKET listenSocket;
-		SOCKET conn;
 		const char* ipv4Addr;
 		int port;
 		int maxConnNum;
 		void Create();
 		void Bind();
 		void Listen();
-		void Accept();	
 };
