@@ -1,10 +1,10 @@
 #include "fileHandler.h"
-#include <iostream>
 #include <stdexcept>
 #define WAVE_FORMAT_PCM 1
 
 FileHandler::FileHandler(int maxChunkSize)
 {
+	// added the maxChunkSize definition to the constructor to avoid including the helper file
 	this->maxChunkSize = maxChunkSize;
 }
 
@@ -63,7 +63,6 @@ char* FileHandler::ReadChunk()
 		this->file.close();
 		return nullptr;
 	}
-	std::cout << "Chunk size: " << this->chunkSize << std::endl;
 	// read chunk
 	char* chunkDataArrPtr = new char[this->chunkSize];
 	file.read(chunkDataArrPtr, this->chunkSize);
