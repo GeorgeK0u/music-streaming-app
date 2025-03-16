@@ -1,6 +1,4 @@
-#define WM_STOP_PLAYBACK (WM_USER + 0)
 #include "windowHandler.h"
-#include "..\helper.h"
 #include <stdexcept>
 
 WindowHandler::WindowHandler()
@@ -25,14 +23,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW+3));
 			EndPaint(hwnd, &ps);
 			break;
-		}
-		case WM_KEYUP:
-		{
-            if (wParam == helper::CLOSE_SOCKET_KEY)
-            {
-                PostMessageA(hwnd, WM_STOP_PLAYBACK, 0, 0);
-            }
-            break;
 		}
 		default:
 		{
